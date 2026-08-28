@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Нячанг · Камрань — Travel Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500;1,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg0: #14060a;
+    --bg1: #2b0d16;
+    --bg2: #471520;
+    --gold: #f2c94c;
+    --gold-soft: rgba(242,201,76,.14);
+    --red: #ff4f3e;
+    --jade: #4fbf8f;
+    --text: #f8efe4;
+    --muted: #c9a9a9;
+    --line: rgba(255,255,255,.13);
+    --serif: "Playfair Display", Georgia, serif;
+    --sans: "Manrope", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: auto; }
+  body {
+    font-family: var(--sans);
+    color: var(--text);
+    background:
+      radial-gradient(1100px 760px at 88% -8%, #54182a 0%, transparent 55%),
+      radial-gradient(900px 640px at -8% 28%, #331019 0%, transparent 55%),
+      linear-gradient(165deg, var(--bg0) 0%, var(--bg1) 55%, var(--bg2) 100%);
+    background-attachment: fixed;
+    line-height: 1.65;
+    overflow-x: clip;
+  }
+  ::selection { background: rgba(242,201,76,.35); }
+
+  /* ambient blobs */
+  .blob { position: fixed; border-radius: 50%; filter: blur(120px); opacity: .4; z-index: 0; pointer-events: none; will-change: transform; }
+  .b1 { width: 560px; height: 560px; background: #f2c94c24; top: -160px; right: -140px; }
+  .b2 { width: 500px; height: 500px; background: #ff4f3e1e; bottom: -140px; left: -160px; }
+  .b3 { width: 400px; height: 400px; background: #4fbf8f1e; top: 42%; left: 58%; }
+
+  /* scroll progress */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0%; z-index: 90;
+    background: linear-gradient(90deg, var(--gold), var(--red));
+    box-shadow: 0 0 14px rgba(242,201,76,.7);
+  }
+
+  /* glass nav — vertical sidebar */
+  nav {
+    position: fixed; top: 50%; left: 22px; transform: translateY(-50%); z-index: 80;
+    display: flex; flex-direction: column; gap: 2px;
+    width: 176px; padding: 14px 12px 14px;
+    border-radius: 26px;
+    background: rgba(24,7,12,.4);
+    backdrop-filter: blur(22px) saturate(170%);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    border: 1px solid var(--line);
+    box-shadow: 0 12px 40px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .nav-brand {
+    font-family: var(--serif); font-style: italic; font-size: 16px; color: var(--gold);
+    text-align: center; padding: 2px 8px 14px; margin-bottom: 10px;
+    border-bottom: 1px solid var(--line); letter-spacing: .06em;
+  }
+  .nav-brand span { display: block; font-family: var(--sans); font-style: normal; font-size: 9px; letter-spacing: .34em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+  nav a {
+    font-size: 12px; font-weight: 700; letter-spacing: .03em; text-decoration: none;
+    color: var(--muted); padding: 8px 14px; border-radius: 12px; white-space: nowrap;
+    display: block; transition: color .3s, background .3s, transform .3s;
+  }
+  nav a:hover { color: #fff; transform: translateX(4px); }
+  nav a.on { color: #17070c; background: linear-gradient(135deg, var(--gold), #e8b53c); }
+
+  #burger {
+    position: fixed; top: 14px; left: 14px; z-index: 95;
+    width: 46px; height: 46px; border-radius: 14px; display: none;
+    border: 1px solid var(--line); cursor: pointer;
+    background: rgba(24,7,12,.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    padding: 0;
+  }
+  #burger span {
+    display: block; width: 20px; height: 2px; margin: 4px auto;
+    background: var(--text); border-radius: 2px; transition: all .3s ease;
+  }
+  #burger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  #burger.open span:nth-child(2) { opacity: 0; }
+  #burger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  #scrim {
+    position: fixed; inset: 0; z-index: 78;
+    background: rgba(10,4,6,.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none; transition: opacity .35s ease;
+  }
+  #scrim.show { opacity: 1; pointer-events: auto; }
+
+  .wrap { position: relative; z-index: 1; max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- HERO ---------- */
+  header.hero {
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+    position: relative; z-index: 1; padding: 130px 0 60px;
+  }
+  .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 12px;
+    font-size: 11px; font-weight: 800; letter-spacing: .42em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 26px;
+  }
+  .kicker::before, .kicker::after { content: ""; width: 34px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .kicker::after { background: linear-gradient(90deg, var(--gold), transparent); }
+  .hero h1 {
+    font-family: var(--serif); font-weight: 700; font-size: clamp(46px, 7vw, 82px);
+    line-height: 1.04; letter-spacing: -.5px;
+  }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero h1 .thin { font-weight: 500; color: #e8d9c6; }
+  .hero .sub { margin-top: 22px; color: var(--muted); max-width: 480px; font-size: 15.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 11px 20px; border-radius: 40px; font-size: 13px; font-weight: 700;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    box-shadow: 0 8px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.07);
+    transition: transform .35s, border-color .35s, box-shadow .35s;
+  }
+  .chip:hover { transform: translateY(-3px); border-color: rgba(242,201,76,.5); box-shadow: 0 16px 40px rgba(0,0,0,.45); }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px rgba(242,201,76,.8); }
+  .chip b { color: var(--gold); font-weight: 800; }
+  .hero-imgbox { position: relative; }
+  .hero-imgbox img {
+    width: 100%; border-radius: 28px; border: 1px solid var(--line);
+    box-shadow: 0 40px 100px rgba(0,0,0,.55);
+  }
+  .hero-imgbox::after {
+    content: ""; position: absolute; inset: 0; border-radius: 28px; pointer-events: none;
+    background: linear-gradient(160deg, rgba(242,201,76,.16), transparent 40%, rgba(255,79,62,.12));
+  }
+  .scroll-hint {
+    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+    font-size: 10.5px; letter-spacing: .35em; text-transform: uppercase; color: var(--muted);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .scroll-hint .line { width: 1px; height: 44px; background: linear-gradient(180deg, var(--gold), transparent); animation: drip 2.2s ease-in-out infinite; }
+  @keyframes drip { 0%,100% { transform: scaleY(0); transform-origin: top; opacity: 0; } 40% { transform: scaleY(1); opacity: 1; } 60% { transform: scaleY(1); opacity: 1; } }
+
+  /* ---------- GLASS CARDS ---------- */
+  section.glass {
+    position: relative; background: rgba(255,255,255,.045);
+    border-radius: 30px; padding: 48px 52px; margin: 60px 0;
+    backdrop-filter: blur(26px) saturate(160%);
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    box-shadow: 0 30px 90px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08);
+    transition: transform .5s ease, box-shadow .5s ease;
+  }
+  section.glass:hover { transform: translateY(-5px); box-shadow: 0 44px 110px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.1); }
+  .grab-pres:hover { transform: none; }
+  /* gradient border */
+  section.glass::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: linear-gradient(140deg, rgba(242,201,76,.45), rgba(255,255,255,.06) 30%, rgba(255,79,62,.28) 75%, rgba(255,255,255,.05));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+  /* ghost number */
+  section.glass > .ghost {
+    position: absolute; top: 22px; right: 34px; font-family: var(--serif);
+    font-size: 88px; font-weight: 700; color: rgba(255,255,255,.05); line-height: 1;
+    pointer-events: none; user-select: none;
+  }
+  section.glass > h2 {
+    font-family: var(--serif); font-size: 34px; font-weight: 700; letter-spacing: -.4px;
+    margin-bottom: 8px;
+  }
+  section.glass > h2 em { font-style: italic; color: var(--gold); }
+  .hrule { width: 72px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), transparent); margin: 10px 0 24px; }
+  .lead { color: var(--muted); font-size: 14.5px; max-width: 640px; }
+  h3 {
+    font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 19px;
+    color: var(--gold); margin: 28px 0 12px; letter-spacing: .2px;
+  }
+  p { margin: 10px 0; color: #e8dcd2; font-size: 14.5px; }
+  ul, ol { margin: 8px 0 12px; padding-left: 24px; color: #e8dcd2; font-size: 14.5px; }
+  li { margin: 7px 0; }
+  li::marker { color: var(--gold); }
+  b, strong { color: #fff; font-weight: 700; }
+  a { color: var(--jade); }
+
+  /* alternating exposure */
+  section.alt { margin-left: auto; max-width: 860px; }
+  section.alt2 { max-width: 900px; }
+
+  /* tables */
+  .tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; font-size: 13.5px; }
+  th {
+    text-align: left; padding: 11px 14px; font-size: 10.5px; font-weight: 800;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--gold);
+    border-bottom: 1px solid rgba(242,201,76,.3); white-space: nowrap;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.06); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .3s; }
+  tbody tr:hover { background: rgba(242,201,76,.05); }
+
+  /* weather bars */
+  .twrap { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .tlo { color: var(--jade); font-weight: 800; }
+  .thi { color: var(--red); font-weight: 800; }
+  .tbar { position: relative; height: 10px; flex: 1; min-width: 90px; background: rgba(255,255,255,.09); border-radius: 6px; overflow: hidden; }
+  .tfill {
+    position: absolute; top: 0; bottom: 0; left: var(--l, 0); width: 0; border-radius: 6px;
+    background: linear-gradient(90deg, #f2c94c, #ff8c42 60%, #ff4f3e);
+    transition: width 1.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .rbar { height: 7px; background: rgba(255,255,255,.09); border-radius: 4px; margin-bottom: 3px; overflow: hidden; }
+  .rbar > div { height: 100%; width: 0; border-radius: 4px; background: linear-gradient(90deg, #4fbf8f, #2f9e7e); transition: width 1.4s cubic-bezier(.2,.7,.2,1) .15s; }
+  .rlab { font-size: 11.5px; color: var(--muted); }
+  tr.appr td { opacity: .5; }
+  .note { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* callout */
+  .callout {
+    background: linear-gradient(135deg, rgba(242,201,76,.12), rgba(255,79,62,.07));
+    border: 1px solid rgba(242,201,76,.32); border-radius: 18px;
+    padding: 20px 24px; margin: 18px 0; font-size: 14px;
+  }
+  .callout b { color: var(--gold); }
+
+  /* figures with varied reveals */
+  figure { margin: 22px 0; text-align: center; }
+  figure img {
+    border-radius: 22px; border: 1px solid var(--line); max-width: 100%;
+    box-shadow: 0 24px 70px rgba(0,0,0,.45);
+    transition: transform .5s ease, box-shadow .5s ease;
+  }
+  figure img:hover { transform: scale(1.02); box-shadow: 0 30px 90px rgba(0,0,0,.6); }
+  figure.wide img { width: min(680px, 100%); }
+  figure.narrow img { width: min(440px, 100%); }
+  figcaption { margin-top: 10px; font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+
+  /* ---------- MAP ---------- */
+  #ymap {
+    width: 100%; height: 460px; display: block; border: 0;
+    border-radius: 24px; border: 1px solid var(--line);
+    background: #180a10;
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0 4px; font-size: 11.5px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .poi-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 16px; }
+  .poi-chips button {
+    font-family: var(--sans); font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer;
+    padding: 8px 15px; border-radius: 30px; border: 1px solid var(--line);
+    background: rgba(255,255,255,.04); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: all .3s;
+  }
+  .poi-chips button:hover { color: #fff; border-color: rgba(255,255,255,.3); transform: translateY(-2px); }
+  .poi-chips button.on { color: #17070c; background: linear-gradient(135deg, var(--gold), #e8b53c); border-color: transparent; }
+  #poiPanel {
+    max-height: 0; opacity: 0; overflow: hidden; transform: translateY(10px);
+    transition: max-height .5s ease, opacity .4s ease, transform .4s ease;
+    background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 18px;
+  }
+  #poiPanel.show { max-height: 420px; opacity: 1; transform: none; }
+  #poiPanel .inner { padding: 20px 24px; }
+  #poiPanel h4 { font-family: var(--serif); font-size: 21px; margin-bottom: 2px; }
+  #poiPanel .cat {
+    display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--gold); border: 1px solid rgba(242,201,76,.4); padding: 3px 12px; border-radius: 20px; margin-bottom: 10px;
+  }
+  #poiPanel .meta { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--jade); margin: 8px 0; font-weight: 600; }
+  #poiPanel p { font-size: 13.5px; }
+
+  /* ---------- GRAB PRESENTATION ---------- */
+  .grab-pres { position: relative; }
+  .tall { height: 280vh; }
+  .stickyview {
+    position: sticky; top: 70px; height: calc(100vh - 120px);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 22px;
+    width: 100%;
+  }
+  .stage { display: grid; grid-template-columns: 1fr 270px; gap: 48px; align-items: center; width: 100%; }
+  .steps { position: relative; min-height: 280px; }
+  .gstep { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; opacity: 0; visibility: hidden; }
+  .gstep .no { font-family: var(--serif); font-style: italic; color: var(--gold); font-size: 17px; margin-bottom: 8px; }
+  .gstep h4 { font-family: var(--serif); font-size: 30px; font-weight: 700; margin-bottom: 12px; }
+  .gstep p { color: var(--muted); max-width: 440px; }
+  .phone {
+    position: relative; width: 250px; aspect-ratio: 9/19; border-radius: 40px; margin: 0 auto;
+    background: #0d0507; border: 1px solid rgba(255,255,255,.16);
+    box-shadow: 0 44px 100px rgba(0,0,0,.65), inset 0 0 0 2px #000, inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .phone::before {
+    content: ""; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 96px; height: 20px; background: #0d0507; border-radius: 14px; z-index: 3;
+  }
+  .shot {
+    position: absolute; inset: 12px; border-radius: 30px; object-fit: cover;
+    width: calc(100% - 24px); height: calc(100% - 24px);
+    opacity: 0; visibility: hidden;
+  }
+  .grab-ctl { display: flex; align-items: center; justify-content: center; gap: 18px; }
+  .grab-ctl button {
+    font-family: var(--sans); cursor: pointer; width: 42px; height: 42px; border-radius: 50%;
+    border: 1px solid var(--line); background: rgba(20,6,9,.5); color: #fff; font-size: 18px; line-height: 1;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    transition: all .3s;
+  }
+  .grab-ctl button:hover { border-color: var(--gold); color: var(--gold); background: rgba(242,201,76,.15); }
+  .grab-dots { display: flex; gap: 7px; }
+  .grab-dots i { width: 8px; height: 8px; border-radius: 20px; background: rgba(255,255,255,.2); transition: all .4s; cursor: pointer; }
+  .grab-dots i.on { width: 24px; background: linear-gradient(90deg, var(--gold), var(--red)); }
+  .grab-count { font-family: var(--serif); font-style: italic; color: var(--muted); font-size: 15px; min-width: 46px; text-align: center; }
+
+  /* checklist */
+  .checks { list-style: none; padding: 0; }
+  .checks li {
+    position: relative; padding: 10px 16px 10px 46px; margin: 8px 0;
+    background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+    border-radius: 16px; cursor: pointer; transition: all .35s;
+  }
+  .checks li::before {
+    content: ""; position: absolute; left: 15px; top: 13px; width: 19px; height: 19px;
+    border: 2px solid rgba(255,255,255,.35); border-radius: 7px; transition: all .35s;
+  }
+  .checks li:hover { background: rgba(255,255,255,.07); transform: translateX(5px); }
+  .checks li:hover::before { border-color: var(--gold); box-shadow: 0 0 12px rgba(242,201,76,.5); }
+  .checks li.done { opacity: .5; }
+  .checks li.done::before { background: linear-gradient(135deg, var(--gold), #e8b53c); border-color: transparent; }
+  .checks li.done::after {
+    content: ""; position: absolute; left: 20px; top: 17px; width: 8px; height: 4px;
+    border-left: 2px solid #17070c; border-bottom: 2px solid #17070c; transform: rotate(-45deg);
+  }
+
+  footer { position: relative; z-index: 1; text-align: center; padding: 70px 20px 80px; color: var(--muted); }
+  footer .line { width: 90px; height: 2px; margin: 0 auto 22px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--red)); }
+  footer .big { font-family: var(--serif); font-style: italic; font-size: 24px; color: var(--text); margin-bottom: 8px; }
+
+  #topbtn {
+    position: fixed; right: 24px; bottom: 24px; width: 52px; height: 52px; border-radius: 50%;
+    border: 1px solid var(--line); cursor: pointer; color: #fff; font-size: 19px; z-index: 85;
+    background: rgba(20,6,9,.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    opacity: 0; transform: translateY(14px); pointer-events: none; transition: all .35s ease;
+  }
+  #topbtn.show { opacity: 1; transform: none; pointer-events: auto; }
+  #topbtn:hover { background: rgba(242,201,76,.18); border-color: var(--gold); color: var(--gold); }
+
+  /* base reveal (fallback, no JS-lib) */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1); }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (min-width: 1200px) {
+    body { padding-left: 206px; }
+  }
+  @media (max-width: 1199px) {
+    #burger { display: block; }
+    nav {
+      top: 14px; left: 12px; transform: translateX(calc(-100% - 40px));
+      transition: transform .45s cubic-bezier(.2,.8,.25,1);
+      max-height: calc(100vh - 28px); overflow-y: auto;
+      scrollbar-width: none;
+    }
+    nav::-webkit-scrollbar { display: none; }
+    nav.open { transform: translateX(0); }
+  }
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 34px; }
+    .hero-imgbox { order: 2; }
+    section.glass { padding: 34px 26px; margin: 40px 0; border-radius: 24px; }
+    section.glass > h2 { font-size: 27px; }
+    section.glass > .ghost { font-size: 62px; top: 16px; right: 22px; }
+    section.alt, section.alt2 { max-width: none; }
+    .tall { height: 260vh; }
+    .stickyview { top: 56px; height: calc(100vh - 116px); gap: 14px; }
+    .stage { grid-template-columns: 1fr; gap: 14px; }
+    .steps { min-height: 130px; order: 2; width: 100%; }
+    .gstep { text-align: center; }
+    .gstep h4 { font-size: 21px; margin-bottom: 4px; }
+    .gstep p { font-size: 12.5px; margin: 0 auto; max-width: 380px; }
+    .gstep .no { font-size: 13px; margin-bottom: 4px; }
+    .phone { width: 155px; border-radius: 28px; }
+    .shot { border-radius: 20px; }
+    .grab-ctl { gap: 12px; }
+    .grab-ctl button { width: 38px; height: 38px; }
+  }
+  @media (max-width: 860px) and (max-height: 700px) {
+    .tall { height: 240vh; }
+    .phone { width: 125px; }
+    .steps { min-height: 110px; }
+  }
+  @media (max-width: 640px) {
+    header.hero { min-height: 92vh; padding-top: 110px; }
+    .hero h1 { font-size: 42px; }
+    .kicker { letter-spacing: .26em; font-size: 10px; }
+    .wrap { padding: 0 14px; }
+    section.glass { padding: 26px 18px; }
+    table { font-size: 12.5px; }
+    th { font-size: 10px; }
+    .twrap { min-width: 130px; }
+    .lbl { font-size: 9px; }
+    .blob { opacity: .2; }
+    #topbtn { right: 14px; bottom: 14px; width: 46px; height: 46px; }
+    figure img { border-radius: 16px; }
+    #ymap { height: 360px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .blob, .scroll-hint .line { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<button id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
+<div id="scrim"></div>
+<nav id="nav">
+  <div class="nav-brand">Nha Trang<span>7 — 15 · 09 · 2026</span></div>
+  <a href="#map">Карта</a>
+  <a href="#flight">Перелёт</a>
+  <a href="#weather">Погода</a>
+  <a href="#money">Деньги</a>
+  <a href="#food">Еда</a>
+  <a href="#hotel">Отель</a>
+  <a href="#city">Нячанг</a>
+  <a href="#grab">Grab</a>
+  <a href="#sim">Связь</a>
+  <a href="#checklist">Чек-лист</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="kicker" data-hero>Travel Edition · 7—15 сентября 2026</div>
+        <h1 data-hero><span class="thin">Нячанг</span> <em>&amp;</em> Камрань</h1>
+        <p class="sub" data-hero>Частный гид по твоему путешествию: погода на каждый день, деньги, отель, транспорт и связь. Всё для спокойного отдыха у моря.</p>
+        <div class="chips" data-hero>
+          <span class="chip"><i></i> Туда · <b>SU 294</b> · 07.09 · 19:20</span>
+          <span class="chip"><i></i> Обратно · <b>SU 295</b> · 15.09 · 11:30</span>
+          <span class="chip"><i></i> Отель · <b>Radisson Blu</b></span>
+        </div>
+      </div>
+      <div class="hero-imgbox" data-hero>
+        <img src="img/hero-beach.jpg" alt="Пляж Нячанга">
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Листай</span><div class="line"></div></div>
+</header>
+
+<div class="wrap">
+
+  <!-- ================= MAP ================= -->
+  <section class="glass reveal" id="map">
+    <span class="ghost">01</span>
+    <h2>Карта <em>мест</em></h2>
+    <div class="hrule"></div>
+    <p class="lead">Живая карта побережья: метки кликабельны, при выборе места карта подлетает к нему. Открыть точку в Яндекс.Картах можно по ссылке в карточке.</p>
+    <div style="margin-top:18px">
+      <iframe id="ymap" src="https://yandex.ru/map-widget/v1/?lang=ru_RU&ll=109.22,12.12&z=10&pt=109.2198,12.0175,pm2rdl~109.2194,11.9982,pm2ywl~109.1965,12.2385,pm2ywl~109.1953,12.2654,pm2ywl~109.1788,12.2505,pm2ywl~109.1887,12.2467,pm2ywl~109.1947,12.1988,pm2ywl~109.205,12.053,pm2ywl~109.27,11.887,pm2ywl~109.305,12.21,pm2gnl~109.231,12.209,pm2gnl~109.133,12.391,pm2ywl~109.289,12.515,pm2ywl" title="Карта мест" allowfullscreen></iframe>
+    </div>
+    <div class="legend">
+      <span><i style="background:#e03131"></i> Отель</span>
+      <span><i style="background:#e0a020"></i> На материке</span>
+      <span><i style="background:#2f9e44"></i> Острова</span>
+    </div>
+    <div class="poi-chips" id="poiChips"></div>
+    <div id="poiPanel"><div class="inner"></div></div>
+  </section>
+
+  <!-- ================= FLIGHT ================= -->
+  <section class="glass reveal alt" id="flight">
+    <span class="ghost">02</span>
+    <h2>Перелёт <em>&amp; логистика</em></h2>
+    <div class="hrule"></div>
+    <h3>Расписание</h3>
+    <div class="tscroll"><table>
+      <tr><th></th><th>Туда</th><th>Обратно</th></tr>
+      <tr><td><b>Рейс</b></td><td>SU 294 (Аэрофлот)</td><td>SU 295 (Аэрофлот)</td></tr>
+      <tr><td><b>Дата</b></td><td>07.09.2026, вылет 19:20</td><td>15.09.2026, вылет 11:30</td></tr>
+      <tr><td><b>Аэропорт</b></td><td>Шереметьево (SVO)</td><td>Камрань (CXR)</td></tr>
+      <tr><td><b>Прилёт</b></td><td>Камрань <b>08.09 ~10:00</b> по местному</td><td>Шереметьево <b>15.09 ~18:00</b> по Москве</td></tr>
+    </table></div>
+    <p>Время в полёте ~10.5–11 часов, разница с Москвой +4 часа. Внимание: прилетаешь в Камрань <b>утром 8 сентября</b> — первый «полный» день в отеле 8-е. Сверь время прилёта в маршрут-квитанции.</p>
+    <h3>Шереметьево (туда)</h3>
+    <ul>
+      <li>Аэрофлот, международные рейсы — <b>терминал C</b>. Приезжай за <b>3 часа</b> (~16:20).</li>
+      <li>Онлайн-регистрация за 24 часа в приложении Аэрофлота.</li>
+      <li>Нормы эконом-класса: багаж 23 кг + ручная кладь 10 кг. Повербанк — только в ручную кладь.</li>
+      <li>Жидкости в ручной клади — до 100 мл в ёмкости. Возьми зарядку и наушники.</li>
+    </ul>
+    <h3>Прилёт в Камрань (CXR)</h3>
+    <ul>
+      <li>Безвизовый штамп (до 45 дней), карточку прибытия заполнять не нужно.</li>
+      <li>После багажа — <b>гид с табличкой туроператора</b>: групповой автобус до отеля (15–25 мин).</li>
+      <li>Если автобус не нашли: стойки туроператоров в зале прилёта либо Grab (~250 тыс. VND).</li>
+      <li>В аэропорту поменяй мелочь на донги; основной обмен — позже в Нячанге по лучшему курсу.</li>
+    </ul>
+    <h3>Вылет домой (SU 295, 15.09 в 11:30)</h3>
+    <ul>
+      <li><b>Групповой трансфер</b>: сбор обычно <b>~07:00–07:30</b>. Уточни на ресепшене <b>14 сентября</b>.</li>
+      <li>В аэропорту надо быть ~08:30–09:00. Если завтрак с 06:00–06:30 — успеешь, иначе закажи бокс-ланч.</li>
+      <li>Дьюти-фри в CXR скромный — сувениры и кофе купи в Нячанге. Прилёт в Москву ~18:00 того же дня.</li>
+    </ul>
+  </section>
+
+  <!-- ================= WEATHER ================= -->
+  <section class="glass reveal" id="weather">
+    <span class="ghost">03</span>
+    <h2>Погода <em>в сентябре</em></h2>
+    <div class="hrule"></div>
+    <p class="lead">Сентябрь — начало влажного сезона. Всё ещё тепло, но возможны ливни и тайфуны (в основном в октябре–ноябре, город защищён островами).</p>
+    <div class="tscroll"><table>
+      <tr><th>Показатель</th><th>Значение</th></tr>
+      <tr><td>Днём</td><td>~28–32 °C</td></tr>
+      <tr><td>Ночью</td><td>~25 °C</td></tr>
+      <tr><td>Вода в море</td><td>~27–28 °C</td></tr>
+      <tr><td>Дождливых дней в сентябре</td><td>~14</td></tr>
+      <tr><td>Осадки за месяц</td><td>~165 мм</td></tr>
+      <tr><td>Влажность</td><td>~80 %</td></tr>
+    </table></div>
+    <h3>Прогноз на даты поездки (7–15 сентября)</h3>
+    <p class="note" style="font-size:13px">Модель ECMWF — та же, что использует Windy. Данные на 28.08.2026.</p>
+    <div class="tscroll"><table>
+      <tr><th>Дата</th><th>День</th><th>Погода</th><th>Температура</th><th>Дождь</th><th>Ветер</th></tr>
+      <tr><td><b>7.09</b></td><td>пн</td><td>Жарко, грозы к вечеру</td><td><div class="twrap"><span class="tlo">28°</span><div class="tbar"><div class="tfill" style="--l:44%" data-w="52%"></div></div><span class="thi">34°</span></div></td><td><div class="rbar"><div data-w="88%"></div></div><div class="rlab">88% · 3,6 мм</div></td><td>до 15 м/с</td></tr>
+      <tr><td><b>8.09</b></td><td>вт</td><td>Тепло, кратковременная морось</td><td><div class="twrap"><span class="tlo">27°</span><div class="tbar"><div class="tfill" style="--l:30%" data-w="53%"></div></div><span class="thi">33°</span></div></td><td><div class="rbar"><div data-w="86%"></div></div><div class="rlab">86% · 3,4 мм</div></td><td>до 14 м/с</td></tr>
+      <tr><td><b>9.09</b></td><td>ср</td><td>Дожди почти весь день</td><td><div class="twrap"><span class="tlo">26°</span><div class="tbar"><div class="tfill" style="--l:28%" data-w="26%"></div></div><span class="thi">29°</span></div></td><td><div class="rbar"><div data-w="89%"></div></div><div class="rlab">89% · 7,8 мм</div></td><td>до 7 м/с</td></tr>
+      <tr><td><b>10.09</b></td><td>чт</td><td>Сильный дождь — самый мокрый день</td><td><div class="twrap"><span class="tlo">26°</span><div class="tbar"><div class="tfill" style="--l:25%" data-w="22%"></div></div><span class="thi">29°</span></div></td><td><div class="rbar"><div data-w="97%"></div></div><div class="rlab">97% · 10,6 мм</div></td><td>до 6 м/с</td></tr>
+      <tr><td><b>11.09</b></td><td>пт</td><td>Грозы, много осадков</td><td><div class="twrap"><span class="tlo">26°</span><div class="tbar"><div class="tfill" style="--l:26%" data-w="10%"></div></div><span class="thi">27°</span></div></td><td><div class="rbar"><div data-w="88%"></div></div><div class="rlab">88% · 11,8 мм</div></td><td>до 4 м/с</td></tr>
+      <tr><td><b>12.09</b></td><td>сб</td><td>Дожди слабеют, прояснения</td><td><div class="twrap"><span class="tlo">25°</span><div class="tbar"><div class="tfill" style="--l:14%" data-w="38%"></div></div><span class="thi">29°</span></div></td><td><div class="rbar"><div data-w="87%"></div></div><div class="rlab">87% · 6,5 мм</div></td><td>до 11 м/с</td></tr>
+      <tr class="appr"><td><b>13.09</b></td><td>вс</td><td>Дожди вероятны *</td><td><div class="twrap"><span class="tlo">25°</span><div class="tbar"><div class="tfill" style="--l:17%" data-w="58%"></div></div><span class="thi">32°</span></div></td><td><div class="rbar"><div data-w="85%"></div></div><div class="rlab">~85% *</div></td><td>—</td></tr>
+      <tr class="appr"><td><b>14.09</b></td><td>пн</td><td>Переменная облачность, дожди *</td><td><div class="twrap"><span class="tlo">25°</span><div class="tbar"><div class="tfill" style="--l:17%" data-w="58%"></div></div><span class="thi">32°</span></div></td><td><div class="rbar"><div data-w="80%"></div></div><div class="rlab">~80% *</div></td><td>—</td></tr>
+      <tr class="appr"><td><b>15.09</b></td><td>вт</td><td>Утро вылета, спокойно *</td><td><div class="twrap"><span class="tlo">25°</span><div class="tbar"><div class="tfill" style="--l:17%" data-w="58%"></div></div><span class="thi">32°</span></div></td><td><div class="rbar"><div data-w="75%"></div></div><div class="rlab">~75% *</div></td><td>—</td></tr>
+    </table></div>
+    <div class="note">* 13–15 сентября — за пределами горизонта модели, значения по климату сентября. Обнови перед вылетом на windy.com.</div>
+    <div class="callout">
+      <b>Как планировать:</b> 7–8 сентября — самые тёплые дни: пляж с утра, грозы к вечеру. 9–11 — пик дождей: СПА, грязевые ванны, музей, кафе, поездка в Нячанг. С 12-го дожди ослабевают — пляж возвращается.
+    </div>
+    <p><b>Что взять:</b> лёгкую одежду, шлёпанцы, крем SPF 50, дождевик или лёгкую ветровку, головной убор, репеллент. Планируй пляж на утро — ливни чаще во второй половине дня.</p>
+  </section>
+
+  <!-- ================= MONEY ================= -->
+  <section class="glass reveal alt2" id="money">
+    <span class="ghost">04</span>
+    <h2>Деньги <em>&amp; курс</em></h2>
+    <div class="hrule"></div>
+    <p><b>Курс на 28.08.2026:</b> 1 USD ≈ 26 045 VND · 1 RUB ≈ 300 VND → <b>100 000 VND ≈ 330 руб.</b></p>
+    <ul>
+      <li><b>Российские карты во Вьетнаме не работают.</b> Бери <b>наличные доллары</b> (купюры $50/$100, чистые, без надрывов).</li>
+      <li>Меняй в <b>ювелирных магазинах (gold shops)</b> — лучший курс, затем банки. Не меняй в аэропорту/отеле.</li>
+      <li>В крупных магазинах и отелях принимают иностранные карты; в кафе и на рынке — только наличные.</li>
+      <li>Банкоматы: TPBank, VPBank, BIDV, Sacombank — комиссия ~50–60 тыс. VND + % своего банка.</li>
+      <li>Цены часто пишут в тысячах: 100k = 100 000 VND.</li>
+    </ul>
+    <figure class="wide" data-reveal="clip">
+      <img src="img/food.webp" alt="Фо бо">
+      <figcaption>Фо бо — суп с говядиной, главное блюдо вьетнамской кухни</figcaption>
+    </figure>
+    <h3>Ориентировочные цены (Нячанг)</h3>
+    <div class="tscroll"><table>
+      <tr><th>Что</th><th>Цена, VND</th><th>~ Руб.</th></tr>
+      <tr><td>Уличный фо / бань ми</td><td>30–60 тыс.</td><td>100–200</td></tr>
+      <tr><td>Ужин в местном ресторане</td><td>150–300 тыс.</td><td>500–1000</td></tr>
+      <tr><td>Ужин в туристическом ресторане</td><td>300–600 тыс.</td><td>1000–2000</td></tr>
+      <tr><td>Кофе (ка-фе-суа-да)</td><td>20–50 тыс.</td><td>70–170</td></tr>
+      <tr><td>Пиво местное (Saigon/Huda)</td><td>15–40 тыс.</td><td>50–130</td></tr>
+      <tr><td>Свежий кокос</td><td>20–30 тыс.</td><td>70–100</td></tr>
+      <tr><td>Морепродукты на двоих (лангуст и пр.)</td><td>500–1200 тыс.</td><td>1700–4000</td></tr>
+      <tr><td>Массаж 60–90 мин</td><td>250–500 тыс.</td><td>800–1700</td></tr>
+      <tr><td>Поездка Grab по городу</td><td>30–80 тыс.</td><td>100–270</td></tr>
+      <tr><td>Такси аэропорт Камрань → Нячанг</td><td>350–500 тыс.</td><td>1200–1700</td></tr>
+      <tr><td>Экскурсия на острова (снорклинг)</td><td>400–800 тыс.</td><td>1300–2700</td></tr>
+    </table></div>
+  </section>
+
+  <!-- ================= FOOD ================= -->
+  <section class="glass reveal alt2" id="food">
+    <span class="ghost">05</span>
+    <h2>Еда <em>· кафе и рестораны</em></h2>
+    <div class="hrule"></div>
+    <p class="lead">Топ местной кухни Нячанга (по TripAdvisor и местным гидам, дек. 2025) + практичные точки в Камрани рядом с отелем. Курс: 100 тыс. VND ≈ 330 ₽.</p>
+
+    <h3>Нячанг — топ местной кухни</h3>
+    <div class="tscroll"><table>
+      <tr><th>Заведение</th><th>Адрес</th><th>Средний чек</th><th>Зачем идти</th></tr>
+      <tr><td><b>Ot Hiem Vietnamese Kitchen</b></td><td>42 Nguyễn Thị Minh Khai (2-й адрес: 39 Hoàng Hoa Thám)</td><td>100–200 тыс. (330–660 ₽)</td><td>Домашняя кухня трёх регионов в «старом вьетнамском доме». Лучший вход в местную кухню. 8:00–22:00</td></tr>
+      <tr><td><b>Lang Ngon</b></td><td>83 Nguyễn Thị Minh Khai</td><td>от ~100 тыс. (330 ₽)</td><td>Деревенский комплекс с лотосами, ~300 блюд со всего Вьетнама. Бронь по телефону 0903 669 969</td></tr>
+      <tr><td><b>Galangal</b></td><td>1A Biệt Thự</td><td>150–250 тыс. (500–830 ₽)</td><td>Открытая кухня, дегустационные сеты, аккуратная подача. 10:00–22:00</td></tr>
+      <tr><td><b>Mam Restaurant</b></td><td>72 Nguyễn Thị Minh Khai</td><td>150–250 тыс.</td><td>Чамская эстетика, семейный сет «mâm cơm» — суп, мясо, овощи, рис</td></tr>
+      <tr><td><b>Xom Moi Garden</b></td><td>144 Võ Trụ</td><td>100–200 тыс.</td><td>Шесть кухонь в одном саду: фо, бань ми, морепродукты, гриль. 6:30–22:00</td></tr>
+      <tr><td><b>Nha Trang Xua</b></td><td>Thái Thông (юг города)</td><td>270 тыс. — шведский стол (≈900 ₽)</td><td>Всё включено: бань кан, глиняные горшочки, нем. Деревенский комплекс 9:00–21:00</td></tr>
+      <tr><td><b>Quán Ngon Đỏ</b></td><td>бул. Phạm Văn Đồng (пляж Bãi Tiên)</td><td>200–400 тыс. (660–1300 ₽)</td><td>Морепродукты у самой воды, закат за ужином. 8:00–22:00</td></tr>
+      <tr><td><b>La Nha</b></td><td>102 Hồng Bàng</td><td>100–150 тыс.</td><td>Уютный семейный: тушёная свинина с яйцом, горячие котлы</td></tr>
+      <tr><td><b>Tuan's Vietnamese Cuisine</b></td><td>5 Trần Quang Khải</td><td>150–250 тыс.</td><td>Максимально комфортно для туристов: бань сео, яичный кофе</td></tr>
+    </table></div>
+    <p>Уличная еда: рынок <b>Дам (Chợ Đầm)</b> и ночной рынок — бань сео, нем ныонг Ниньхоа, бун ча ка (уха с рыбными котлетами) за 30–60 тыс.</p>
+
+    <h3>Камрань — магазины и кафе рядом с отелем</h3>
+    <div class="tscroll"><table>
+      <tr><th>Что</th><th>Где</th><th>Чек</th><th>Примечание</th></tr>
+      <tr><td><b>WinMart+ / Bách Hóa Xanh</b></td><td>центр Камрани, р-н Ba Ngòi (~20–25 мин Grab)</td><td>—</td><td>Сетевые минимаркеты: вода, снеки, фрукты, бытовая мелочь. Ищи в Grab по названию</td></tr>
+      <tr><td><b>Chợ Cam Ranh (рынок)</b></td><td>Ba Ngòi, рядом с кольцевой 1A</td><td>—</td><td>Утром — свежие фрукты, рыба и морепродукты. Торг уместен</td></tr>
+      <tr><td><b>Вьетнамские кофейни</b></td><td>ул. Nguyễn Tất Thành и вокруг рынка</td><td>кофе 15–30 тыс.</td><td>Десятки семейных кафе: cà phê sữa đá (ледяной с молоком) — обязателен</td></tr>
+      <tr><td><b>Морепродукты у дороги QL1A</b></td><td>трасса аэропорт ↔ Камрань</td><td>200–400 тыс./чел</td><td>Семейные рестораны с аквариумами: выбираешь рыбу — считают по весу, цену оговаривай заранее</td></tr>
+      <tr><td><b>Специалитет Камрани</b></td><td>у рынка Ba Ngòi</td><td>30–50 тыс.</td><td>Bánh canh chả cá — густой суп с рыбными котлетами, фирменное блюдо города</td></tr>
+    </table></div>
+    <div class="callout">
+      <b>Совет:</b> большой супермаркет (GO! / Co.opMart) есть только в Нячанге — совмести с поездкой в город (Grab туда-обратно ~700 тыс.). Вокруг отеля на Бай Дай отдельные рестораны редки: либо отельные кафе соседних резортов, либо Камрань на Grab.
+    </div>
+  </section>
+
+  <!-- ================= CAMRANH ================= -->
+  <section class="glass reveal alt" id="camranh">
+    <span class="ghost">06</span>
+    <h2>Камрань <em>&amp; окрестности</em></h2>
+    <div class="hrule"></div>
+    <ul>
+      <li><b>Radisson Blu Resort Cam Ranh</b> стоит на пляже <b>Бай Дай (Bai Dai / Long Beach)</b> — длинный песчаный пляж южнее города, тихо и малолюдно.</li>
+      <li>Вокруг мало «города»: развлечения — поездки в Нячанг (45–60 мин) или трансферы отеля. Для спокойного пляжного отдыха — идеально.</li>
+      <li>Рядом: поля <b>соляных промыслов Хон Хой (Hon Khoi Salt Fields)</b> — живописно на рассвете.</li>
+      <li>Чуть дальше: бухта <b>Нинь Ван (Ninh Van Bay)</b>, «секретная» лагуна <b>Бинь Лап (Binh Lap)</b> — спокойная вода, снорклинг.</li>
+      <li>Ближе к городу: грязевые источники <b>I-Resort</b>, <b>Thap Ba Hot Springs</b> и <b>100 Egg Mud Bath</b>.</li>
+    </ul>
+  </section>
+
+  <!-- ================= HOTEL ================= -->
+  <section class="glass reveal" id="hotel">
+    <span class="ghost">07</span>
+    <h2>Отель <em>Radisson Blu</em></h2>
+    <div class="hrule"></div>
+    <figure class="wide" data-reveal="blur">
+      <img src="img/hotel.webp" alt="Radisson Blu Resort Cam Ranh">
+      <figcaption>Radisson Blu Resort Cam Ranh</figcaption>
+    </figure>
+    <div class="tscroll"><table>
+      <tr><td><b>Категория</b></td><td>5★, beachfront-резорт</td></tr>
+      <tr><td><b>Пляж</b></td><td>Бай Дай (Long Beach), собственный участок</td></tr>
+      <tr><td><b>Номера</b></td><td>комнаты и виллы с видом на океан; есть виллы с собственным бассейном</td></tr>
+      <tr><td><b>Заселение / выезд</b></td><td>обычно 15:00 / 12:00 (сверь с ваучером)</td></tr>
+      <tr><td><b>Расстояния</b></td><td>аэропорт CXR ~15–20 мин, Нячанг ~45–60 мин</td></tr>
+    </table></div>
+    <h3>Что есть на территории</h3>
+    <ul>
+      <li><b>Бассейны</b> — большой главный комплекс у моря (+ детская зона). Полотенца выдаются.</li>
+      <li><b>Пляж</b> — шезлонги и зонты бесплатно; в сентябре возможны волны — купайся в отмеченной зоне.</li>
+      <li><b>Еда:</b> ресторан all-day, стейк/морепродукты, пляжный бар, рум-сервис 24/7. Завтрак — шведский стол (включён ли в тариф — проверь в ваучере).</li>
+      <li><b>Спорт и SPA:</b> фитнес-зал, спа-центр с массажами, теннисные корты.</li>
+      <li><b>Детский клуб</b> Kids Club, <b>бесплатные велосипеды</b>, <b>бесплатный Wi-Fi</b> (ловит и на пляже).</li>
+      <li><b>Сервисы:</b> обмен валюты на ресепшене, экскурсионное бюро, прачечная, трансфер, прокат водного инвентаря.</li>
+    </ul>
+    <div class="callout">
+      <b>Депозит при чек-ине — да.</b> Размер: <b>1 000 000 VND за номер за ночь</b> (≈ $40–50). За 8 ночей наберётся ~8 млн VND (≈ $310) — наличными или блокировкой на иностранной карте. Возвращается при выезде. Сохрани чек о депозите до выезда, точный способ оплаты уточни на ресепшене.
+    </div>
+    <h3>Практические советы</h3>
+    <ul>
+      <li>Спроси на ресепшене расписание <b>шаттла в Нячанг</b> — дешевле такси.</li>
+      <li>Шезлонги у бассейна занимают с утра — для спокойного места приходи до 09:00.</li>
+      <li>Полотенца по карточкам — не потеряй (иначе спишут с депозита).</li>
+      <li>Пить — бутилированную воду (бесплатная в номере, пополняется ежедневно).</li>
+      <li>Персонал говорит по-английски; переводчик пригодится на всякий случай.</li>
+    </ul>
+  </section>
+
+  <!-- ================= CITY ================= -->
+  <section class="glass reveal alt" id="city">
+    <span class="ghost">08</span>
+    <h2>Нячанг <em>· что посетить</em></h2>
+    <div class="hrule"></div>
+    <figure class="wide" data-reveal="slide">
+      <img src="img/ponagar.jpg" alt="Башни По Нагар">
+      <figcaption>Башни По Нагар — главная достопримечательность Нячанга</figcaption>
+    </figure>
+    <h3>Город (полдня–день)</h3>
+    <ul>
+      <li><b>Башни По Нагар (Po Nagar)</b> — храмовый комплекс чамов VII–XII вв., ~30 тыс. VND.</li>
+      <li><b>Пагода Лонг Шон (Long Son)</b> — белый Будда на холме, вход бесплатный.</li>
+      <li><b>Кафедральный собор (Christ the King Cathedral)</b> — готика на холме в центре.</li>
+      <li><b>Океанографический музей</b> — аквариум, скелет кита.</li>
+      <li><b>Музей Александра Йерсена</b> — интересно, если любишь историю науки.</li>
+      <li><b>Башня Трам Хуонг</b> и променад по <b>ул. Чан Фу (Tran Phu)</b> — главная набережная.</li>
+      <li><b>Рынок Дам (Cho Dam)</b> и <b>ночной рынок</b> — фрукты, сувениры, уличная еда.</li>
+    </ul>
+    <figure class="narrow" data-reveal="scale">
+      <img src="img/buddha.jpg" alt="Белый Будда">
+      <figcaption>Белый Будда, пагода Лонг Шон</figcaption>
+    </figure>
+    <h3>Острова (снорклинг / лодочные туры)</h3>
+    <ul>
+      <li><b>Хон Мун (Hon Mun)</b> — морской заповедник, лучший снорклинг.</li>
+      <li><b>Хон Там (Hon Tam)</b> — пляжный остров, лежаки, спокойное море.</li>
+      <li><b>Винперл / Хон Че (VinWonders)</b> — парк развлечений + самая длинная морская канатная дорога (~3 км).</li>
+    </ul>
+    <figure class="narrow" data-reveal="blur">
+      <img src="img/baskets.jpg" alt="Лодки-корзины">
+      <figcaption>Круглые лодки-корзины — символ рыбацких деревень</figcaption>
+    </figure>
+    <h3>Природа</h3>
+    <ul>
+      <li>Водопады <b>Ба Хо (Ba Ho)</b> — купание в каскадах, ~25 км от города.</li>
+      <li>Пляж <b>Док Лет (Doc Let)</b> — белый песок, мелкое море, ~50 км на север.</li>
+    </ul>
+  </section>
+
+  <!-- ================= WALK ================= -->
+  <section class="glass reveal" id="walk">
+    <span class="ghost">09</span>
+    <h2>Где <em>погулять</em></h2>
+    <div class="hrule"></div>
+    <ul>
+      <li><b>Променад Тран Фу</b> вечером — фонтаны, артисты, мороженое; главное место вечерних прогулок.</li>
+      <li><b>Парк Йерсена</b> у моря и площадь с башней Трам Хуонг.</li>
+      <li><b>Ночной рынок</b> в центре — атмосферно после заката.</li>
+      <li><b>Европейский квартал</b> (улицы Hung Vuong, Nguyen Thien Thuat) — кафе и рестораны.</li>
+      <li>Вокруг отеля: сам пляж Бай Дай — километры песка, прогулки на закате.</li>
+    </ul>
+  </section>
+
+  <!-- ================= GRAB PRESENTATION ================= -->
+  <section class="glass reveal grab-pres" id="grab">
+    <span class="ghost">10</span>
+    <h2>Grab <em>· как пользоваться</em></h2>
+    <div class="hrule"></div>
+    <p class="lead"><b>Grab</b> — это «Uber» Юго-Восточной Азии. Цена фиксируется до поездки, водитель на карте, маршрут записан — никто не накручивает счётчик. Просто листай вниз — дальше всё покажет презентация.</p>
+    <div class="tall" id="grabTall">
+      <div class="stickyview">
+        <div class="stage">
+          <div class="steps">
+            <div class="gstep"><span class="no">Шаг 1 / 7</span><h4>Открой приложение</h4><p>Сверху поле назначения, снизу тарифы с фиксированной ценой. Интерфейс на английском.</p></div>
+            <div class="gstep"><span class="no">Шаг 2 / 7</span><h4>Введи назначение</h4><p>Отель пиши как «Radisson Blu Resort Cam Ranh» или вставляй точку из Google Maps.</p></div>
+            <div class="gstep"><span class="no">Шаг 3 / 7</span><h4>Поиск водителя</h4><p>Приложение находит ближайшего водителя — видишь его на карте и цену заранее.</p></div>
+            <div class="gstep"><span class="no">Шаг 4 / 7</span><h4>Машина в пути</h4><p>Следи, как машина едет к отелю. Сверь номер и фото водителя.</p></div>
+            <div class="gstep"><span class="no">Шаг 5 / 7</span><h4>Поездка</h4><p>Едешь по записанному маршруту — цена не изменится, даже если встать в пробке.</p></div>
+            <div class="gstep"><span class="no">Шаг 6 / 7</span><h4>Оплата</h4><p>Платишь наличными ровно сумму из приложения. Носи купюры помельче — сдачи часто нет.</p></div>
+            <div class="gstep"><span class="no">Шаг 7 / 7</span><h4>Итоги</h4><p>Оценка и чаевые — по желанию. Приятной поездки!</p></div>
+          </div>
+          <div class="phone">
+            <img class="shot" src="img/grab-01.jpg" alt="Шаг 1">
+            <img class="shot" src="img/grab-02.jpg" alt="Шаг 2">
+            <img class="shot" src="img/grab-03.jpg" alt="Шаг 3">
+            <img class="shot" src="img/grab-04.jpg" alt="Шаг 4">
+            <img class="shot" src="img/grab-05.jpg" alt="Шаг 5">
+            <img class="shot" src="img/grab-06.jpg" alt="Шаг 6">
+            <img class="shot" src="img/grab-07.jpg" alt="Шаг 7">
+          </div>
+        </div>
+        <div class="grab-ctl">
+          <button id="gPrev" aria-label="Назад">‹</button>
+          <div class="grab-dots" id="grabDots"></div>
+          <button id="gNext" aria-label="Вперёд">›</button>
+          <span class="grab-count" id="grabCount">1 / 7</span>
+        </div>
+      </div>
+    </div>
+    <div class="tscroll"><table style="margin-top:22px">
+      <tr><th>Маршрут</th><th>GrabCar, VND</th><th>~ Руб.</th><th>Время</th></tr>
+      <tr><td>Аэропорт CXR → отель</td><td>~200–300 тыс.</td><td>700–1000</td><td>15–20 мин</td></tr>
+      <tr><td>Отель → центр Нячанга</td><td>~300–450 тыс.</td><td>1000–1500</td><td>45–60 мин</td></tr>
+      <tr><td>По Нячангу</td><td>30–80 тыс.</td><td>100–270</td><td>5–20 мин</td></tr>
+      <tr><td>Отель → I-Resort / грязевые ванны</td><td>~250–350 тыс.</td><td>800–1200</td><td>30–40 мин</td></tr>
+    </table></div>
+    <h3>Альтернативы</h3>
+    <ul>
+      <li><b>Xanh SM</b> — такси на электромобилях VinFast, английский интерфейс, наличные.</li>
+      <li><b>Be</b> — второй по популярности агрегатор, часто чуть дешевле.</li>
+      <li><b>Mai Linh / Vinasun</b> — такси по счётчику; на дальние маршруты договаривайся о фиксированной цене.</li>
+      <li><b>Мотобайк в аренду:</b> 120–200 тыс. VND/день, нужны права и шлем.</li>
+      <li><b>Шаттлы отеля</b> в Нячанг — спроси расписание на ресепшене.</li>
+    </ul>
+  </section>
+
+  <!-- ================= SIM ================= -->
+  <section class="glass reveal alt" id="sim">
+    <span class="ghost">11</span>
+    <h2>Связь <em>· eSIM</em></h2>
+    <div class="hrule"></div>
+    <h3>Вариант 1 — eSIM (рекомендую)</h3>
+    <ul>
+      <li><b>Airalo — Вьетнам (сеть VNPT):</b> безлимит 7 дней — <b>$27</b>, 10 дней — <b>$34.50</b>, 15 дней — <b>$48</b>. Покупай и устанавливай заранее из дома. На 8 дней подходит пакет на 10 дней.</li>
+      <li>Альтернативы: Holafly, Yesim, Drimsim (оплата по мегабайтам — выгодно при редком использовании).</li>
+      <li>Звонки — через WhatsApp/Telegram.</li>
+    </ul>
+    <h3>Вариант 2 — местная SIM (дешевле)</h3>
+    <ul>
+      <li>В аэропорту Камрань или салонах <b>Viettel / Vinaphone / Mobifone</b>: ~250–400 тыс. VND (~800–1300 руб.) за 30 дней.</li>
+      <li>Нужен паспорт. Viettel ловит лучше всех, в т.ч. на островах.</li>
+    </ul>
+    <p><b>Важно:</b> роуминг основной SIM держи выключенным, включи «данные только через eSIM». VPN может пригодиться для части сервисов, но заблокированных сайтов во Вьетнаме минимум.</p>
+  </section>
+
+  <!-- ================= TRANSLATE ================= -->
+  <section class="glass reveal" id="translate">
+    <span class="ghost">12</span>
+    <h2>Переводчик <em>· русский ↔ вьетнамский</em></h2>
+    <div class="hrule"></div>
+    <p><b>Главный инструмент — Google Translate</b> (бесплатно, вьетнамский поддерживает отлично):</p>
+    <ol>
+      <li><b>Офлайн-пакет.</b> Скачай вьетнамский заранее: Настройки → Офлайн-перевод → Вьетнамский.</li>
+      <li><b>Камера.</b> Наводишь на меню/вывеску — перевод прямо на экране (то же умеет Google Lens).</li>
+      <li><b>Режим разговора.</b> Говоришь по-русски — телефон произносит по-вьетнамски и наоборот. Покажи экран продавцу, если шумно.</li>
+    </ol>
+    <p><b>Запасные:</b> Yandex Translate (интерфейс на русском), Microsoft Translator (офлайн-пакеты). <b>DeepL не подходит</b> — вьетнамского в нём нет.</p>
+    <p><b>Лайфхаки:</b> в туристических местах многие знают английский, но на рынках и в маленьких кафе без переводчика сложно. Дай приложению доступ к камере и микрофону до вылета.</p>
+  </section>
+
+  <!-- ================= CHECKLIST ================= -->
+  <section class="glass reveal alt2" id="checklist">
+    <span class="ghost">13</span>
+    <h2>Чек-лист <em>перед вылетом</em></h2>
+    <div class="hrule"></div>
+    <ul class="checks">
+      <li>Загранпаспорт: срок действия <b>не менее 6 месяцев</b> на дату въезда.</li>
+      <li>Виза: для граждан РФ въезд без визы до 45 дней — проверь актуальность на сайте консульства.</li>
+      <li>Наличные <b>USD</b> (купюры $50/$100, новые) + немного рублей про запас.</li>
+      <li>eSIM куплен и установлен (или план купить SIM в аэропорту).</li>
+      <li>Установить <b>Grab</b> и зарегистрироваться.</li>
+      <li>Установить <b>Google Translate</b> и скачать офлайн-пакет вьетнамского.</li>
+      <li>Копии документов в облако (паспорт, билеты, страховка).</li>
+      <li><b>Медицинская страховка</b> с покрытием Вьетнама.</li>
+      <li>Бронь отеля и обратный билет — сохранить офлайн.</li>
+      <li>Переходник для розеток на всякий случай (во Вьетнаме A/C/EU, 220V).</li>
+      <li>Аптечка: пластыри, жаропонижающее, сорбенты, репеллент, SPF 50.</li>
+      <li>Уточнить <b>время трансфера на вылет</b> (SU 295) — 14 сентября.</li>
+      <li>Лёгкий дождевик + сменная обувь.</li>
+    </ul>
+  </section>
+
+  <!-- ================= PHRASES ================= -->
+  <section class="glass reveal" id="phrases">
+    <span class="ghost">14</span>
+    <h2>Полезные <em>фразы</em></h2>
+    <div class="hrule"></div>
+    <div class="tscroll"><table>
+      <tr><th>Русский</th><th>Вьетнамский</th><th>Как читать</th></tr>
+      <tr><td>Здравствуйте</td><td>Xin chào</td><td>син чао</td></tr>
+      <tr><td>Спасибо</td><td>Cảm ơn</td><td>кам он</td></tr>
+      <tr><td>Сколько стоит?</td><td>Bao nhiêu tiền?</td><td>бау ниеу тьен?</td></tr>
+      <tr><td>Слишком дорого</td><td>Đắt quá</td><td>дат куа</td></tr>
+      <tr><td>Вкусно</td><td>Ngon</td><td>нгон</td></tr>
+      <tr><td>Счёт, пожалуйста</td><td>Tính tiền</td><td>тинь тьен</td></tr>
+      <tr><td>Не остро</td><td>Không cay</td><td>хонг кай</td></tr>
+    </table></div>
+  </section>
+
+  <!-- ================= MISC ================= -->
+  <section class="glass reveal alt" id="misc">
+    <span class="ghost">15</span>
+    <h2>Прочее</h2>
+    <div class="hrule"></div>
+    <ul>
+      <li><b>Тайфуны</b> в сентябре редки, но возможны — следи за прогнозом; при красных флагах не купайся на диких пляжах.</li>
+      <li><b>Питьевая вода</b> — только бутилированная; лёд в нормальных кафе безопасен.</li>
+      <li><b>Торг</b> уместен на рынках, не в магазинах с ценниками.</li>
+      <li>Время: GMT+7, разница с Москвой +4 часа.</li>
+      <li>Чаевые не обязательны, но 20–50 тыс. VND горничной/официанту приветствуются.</li>
+      <li>В сентябре мало туристов — цены на экскурсии и трансферы торгуются легче.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <div class="line"></div>
+    <div class="big">Chúc chuyến đi vui vẻ!</div>
+    <div>Приятного путешествия · Нячанг / Камрань · 7–15 сентября 2026</div>
+  </footer>
+
+</div>
+
+<button id="topbtn" title="Наверх">↑</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollToPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+  const hasGsap = typeof gsap !== 'undefined';
+
+  /* ---- lenis smooth scroll ---- */
+  let lenis = null;
+  if (typeof Lenis !== 'undefined') {
+    lenis = new Lenis({ lerp: 0.09, wheelMultiplier: 1 });
+    if (hasGsap) {
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(t => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    } else {
+      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+    }
+  }
+
+  /* ---- scroll progress ---- */
+  const progress = document.getElementById('progress');
+  const topbtn = document.getElementById('topbtn');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    progress.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+    topbtn.classList.toggle('show', h.scrollTop > 600);
+  }, { passive: true });
+  topbtn.addEventListener('click', () => {
+    if (lenis) lenis.scrollTo(0, { duration: 1.4 });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---- nav: burger + smooth anchors + active ---- */
+  const nav = document.getElementById('nav');
+  const burger = document.getElementById('burger');
+  const scrim = document.getElementById('scrim');
+  function closeNav() { nav.classList.remove('open'); burger.classList.remove('open'); scrim.classList.remove('show'); }
+  burger.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    burger.classList.toggle('open', open);
+    scrim.classList.toggle('show', open);
+  });
+  scrim.addEventListener('click', closeNav);
+  const navLinks = [...document.querySelectorAll('nav a')];
+  navLinks.forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    closeNav();
+    const el = document.querySelector(a.getAttribute('href'));
+    if (!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY - 80;
+    if (lenis) lenis.scrollTo(y, { duration: 1.6 });
+    else window.scrollTo({ top: y, behavior: 'smooth' });
+  }));
+  const sectionsForNav = navLinks.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const navIo = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) navLinks.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id));
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sectionsForNav.forEach(s => navIo.observe(s));
+
+  /* ---- fallback reveal + weather bars ---- */
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        e.target.querySelectorAll('[data-w]').forEach(bar => requestAnimationFrame(() => { bar.style.width = bar.dataset.w; }));
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  revealEls.forEach(el => io.observe(el));
+
+  /* ---- checklist toggle ---- */
+  document.querySelectorAll('.checks li').forEach(li => li.addEventListener('click', () => li.classList.toggle('done')));
+
+  /* ---- POI map (Yandex widget) ---- */
+  const POIS = {
+    doclet:   { name: 'Пляж Док Лет', cat: 'Пляж', lat: 12.515, lng: 109.289, kind: 'dot', dist: '~60 км · 1 ч на авто', how: 'Аренда авто или экскурсия на день (~1.2–1.5 млн VND)', desc: 'Белый песок и мелкое море на севере от Нячанга. Ради этого стоит потратить день.' },
+    baho:     { name: 'Водопады Ба Хо', cat: 'Природа', lat: 12.391, lng: 109.133, kind: 'dot', dist: '~55 км · 1 ч на авто', how: 'Экскурсия или аренда байка/авто; тропа по джунглям ~1 км', desc: 'Три каскада с купанием посреди джунглей. В сентябре — самая полноводная пора.' },
+    ponagar:  { name: 'Башни По Нагар', cat: 'Достопримечательность', lat: 12.2654, lng: 109.1953, kind: 'dot', dist: '~26 км · 40 мин', how: 'Grab из отеля ~300–450 тыс. VND', desc: 'Храмовый комплекс чамов VII–XII вв. Вход ~30 тыс. VND. Главная достопримечательность Нячанга.' },
+    longson:  { name: 'Пагода Лонг Шон', cat: 'Храм', lat: 12.2505, lng: 109.1788, kind: 'dot', dist: '~26 км · 40 мин', how: 'Grab из отеля ~300–450 тыс. VND', desc: 'Белый Будда на холме, вход бесплатный. Лучший вид на город.' },
+    cathedral:{ name: 'Кафедральный собор', cat: 'Архитектура', lat: 12.2467, lng: 109.1887, kind: 'dot', dist: '~25 км · 40 мин', how: 'Grab из отеля ~300–450 тыс. VND', desc: 'Готика на холме в центре. Хорошая точка для фото.' },
+    promenade:{ name: 'Променад Тран Фу', cat: 'Прогулка', lat: 12.2385, lng: 109.1965, kind: 'dot', dist: '~25 км · 45 мин', how: 'Grab из отеля ~300–450 тыс. VND', desc: 'Главная набережная города: фонтаны, артисты, кафе и закат над морем.' },
+    iresort:  { name: 'I-Resort', cat: 'СПА / грязевые ванны', lat: 12.1988, lng: 109.1947, kind: 'dot', dist: '~22 км · 30–40 мин', how: 'Grab из отеля ~250–350 тыс. VND', desc: 'Грязевые ванны и минеральные бассейны — идеальный план на дождливый день 9–11 сентября.' },
+    honkhoi:  { name: 'Соляные поля Хон Хой', cat: 'Фото-локация', lat: 12.053, lng: 109.205, kind: 'dot', dist: '~10 км · 15 мин', how: 'Grab ~150–200 тыс. VND, ехать на рассвете', desc: 'Розово-белые соляные поля рядом с отелем. Самые красивые кадры — на рассвете.' },
+    hotel:    { name: 'Radisson Blu Resort Cam Ranh', cat: 'Отель', lat: 12.0175, lng: 109.2198, kind: 'hotel', dist: '0 км — твоя база', how: '—', desc: 'Пляж Бай Дай: километры песка, бассейны, СПА. Отсюда считай все маршруты.' },
+    binhlap:  { name: 'Лагуна Бинь Лап', cat: 'Пляж', lat: 11.887, lng: 109.27, kind: 'dot', dist: '~15 км · 25 мин', how: 'Grab ~200–300 тыс. VND или байк', desc: '«Секретная» лагуна со спокойной водой и снорклингом — вьетнамский мини-Мальдивы.' },
+    airport:  { name: 'Аэропорт Камрань (CXR)', cat: 'Транспорт', lat: 11.9982, lng: 109.2194, kind: 'dot', dist: '~15 км · 15–20 мин', how: 'Групповой трансфер или Grab ~200–300 тыс. VND', desc: 'Прилёт 8.09 утром, вылет 15.09 в 11:30. На вылет собирайся ~07:00.' },
+    honmun:   { name: 'Остров Хон Мун', cat: 'Остров', lat: 12.21, lng: 109.305, kind: 'island', dist: '~25 км до порта + лодка', how: 'Лодочная экскурсия из порта Нячанга (~400–800 тыс. VND)', desc: 'Морской заповедник, лучший снорклинг региона: кораллы и рыбки.' },
+    vinwonders:{ name: 'Винперл / Хон Че', cat: 'Остров / парк', lat: 12.209, lng: 109.231, kind: 'island', dist: '~25 км + канатная дорога', how: 'Grab до станции канатки, билет ~1–1.2 млн VND', desc: 'Парк развлечений и самая длинная морская канатная дорога в мире (~3 км).' }
+  };
+  const panel = document.getElementById('poiPanel');
+  const panelInner = panel.querySelector('.inner');
+  const chipsBox = document.getElementById('poiChips');
+  const ymap = document.getElementById('ymap');
+
+  const PTS = Object.entries(POIS).map(([id, p]) => {
+    const style = id === 'hotel' ? 'pm2rdl' : (p.kind === 'island' ? 'pm2gnl' : 'pm2ywl');
+    return p.lng + ',' + p.lat + ',' + style;
+  }).join('~');
+
+  function flyMap(id) {
+    const p = POIS[id];
+    if (!p || !ymap) return;
+    const z = (id === 'hotel' || id === 'airport') ? 13 : (p.kind === 'island' ? 11 : 12);
+    ymap.src = 'https://yandex.ru/map-widget/v1/?lang=ru_RU&ll=' + p.lng + ',' + p.lat + '&z=' + z + '&pt=' + PTS;
+  }
+
+  Object.entries(POIS).forEach(([id, p]) => {
+    const btn = document.createElement('button');
+    btn.textContent = p.name;
+    btn.dataset.poi = id;
+    chipsBox.appendChild(btn);
+  });
+  function selectPoi(id) {
+    const p = POIS[id];
+    if (!p) return;
+    chipsBox.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.poi === id));
+    flyMap(id);
+    panelInner.innerHTML =
+      '<span class="cat">' + p.cat + '</span>' +
+      '<h4>' + p.name + '</h4>' +
+      '<div class="meta"><span>Путь: ' + p.dist + '</span><span>Как добраться: ' + p.how + '</span></div>' +
+      '<p>' + p.desc + '</p>' +
+      '<p><a href="https://yandex.ru/maps/?pt=' + p.lng + ',' + p.lat + '&z=15&l=map" target="_blank" rel="noopener">Открыть в Яндекс.Картах</a></p>';
+    panel.classList.add('show');
+  }
+  chipsBox.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    selectPoi(b.dataset.poi);
+    if (window.innerWidth < 860) {
+      const y = document.getElementById('map').getBoundingClientRect().top + window.scrollY - 80;
+      if (lenis) lenis.scrollTo(y, { duration: 1 });
+    }
+  });
+  selectPoi('hotel');
+
+  /* ================= GSAP ENHANCEMENTS ================= */
+  if (hasGsap) {
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+    /* hero entrance */
+    gsap.from('[data-hero]', {
+      y: 44, autoAlpha: 0, duration: 1.1, ease: 'power3.out', stagger: 0.14, delay: 0.1
+    });
+
+    /* ambient parallax */
+    gsap.to('.b1', { yPercent: 30, xPercent: -12, scrollTrigger: { trigger: document.body, start: 'top top', end: 'max', scrub: 1.2 } });
+    gsap.to('.b2', { yPercent: -24, xPercent: 14, scrollTrigger: { trigger: document.body, start: 'top top', end: 'max', scrub: 1.6 } });
+    gsap.to('.b3', { yPercent: 18, xPercent: -18, scrollTrigger: { trigger: document.body, start: 'top top', end: 'max', scrub: 1.8 } });
+    gsap.to('.hero-imgbox img', { yPercent: -8, scrollTrigger: { trigger: 'header.hero', start: 'top top', end: 'bottom top', scrub: 1 } });
+
+    /* varied image reveals — safe pattern: gsap.from with immediateRender:false.
+       Images stay fully visible unless the trigger actually fires, so nothing
+       can ever remain blurred/hidden by a missed trigger. */
+    document.querySelectorAll('figure[data-reveal]').forEach(fig => {
+      const img = fig.querySelector('img');
+      const t = fig.dataset.reveal;
+      const st = { trigger: fig, start: 'top 88%', once: true };
+      if (t === 'clip') {
+        gsap.from(img, {
+          clipPath: 'inset(12% 8% 12% 8% round 24px)', scale: 1.16,
+          duration: 1.3, ease: 'power3.out', immediateRender: false, scrollTrigger: st
+        });
+      } else if (t === 'blur') {
+        gsap.from(img, {
+          filter: 'blur(16px)', y: 34, duration: 1.15, ease: 'power3.out',
+          immediateRender: false, scrollTrigger: st
+        });
+      } else if (t === 'slide') {
+        gsap.from(img, {
+          x: -70, duration: 1.1, ease: 'power3.out', immediateRender: false, scrollTrigger: st
+        });
+      } else {
+        gsap.from(img, {
+          scale: .88, y: 46, duration: 1.15, ease: 'power3.out', immediateRender: false, scrollTrigger: st
+        });
+      }
+    });
+
+    /* ghost numbers drift — same safe pattern */
+    gsap.utils.toArray('section.glass > .ghost').forEach(g => {
+      gsap.from(g, {
+        y: 26, autoAlpha: 0, duration: 1.2, ease: 'power3.out', immediateRender: false,
+        scrollTrigger: { trigger: g.parentElement, start: 'top 80%', once: true }
+      });
+    });
+
+    /* ----- grab presentation: CSS sticky runway + scroll-driven steps ----- */
+    const pres = document.querySelector('.grab-pres');
+    const tall = document.getElementById('grabTall');
+    const steps = gsap.utils.toArray('.gstep');
+    const shots = gsap.utils.toArray('.shot');
+    const dotsBox = document.getElementById('grabDots');
+    const grabCount = document.getElementById('grabCount');
+    const n = steps.length;
+    steps.forEach((s, i) => {
+      const d = document.createElement('i');
+      d.dataset.i = i;
+      dotsBox.appendChild(d);
+    });
+    const grabDots = [...dotsBox.children];
+
+    const presTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: tall, start: 'top top+=70', end: 'bottom bottom-=50', scrub: 1,
+        onUpdate: self => {
+          const idx = Math.min(n - 1, Math.floor(self.progress * n));
+          grabDots.forEach((d, k) => d.classList.toggle('on', k === idx));
+          grabCount.textContent = (idx + 1) + ' / ' + n;
+        }
+      }
+    });
+
+    gsap.set(steps[0], { autoAlpha: 1, y: 0 });
+    gsap.set(shots[0], { autoAlpha: 1, scale: 1 });
+    for (let i = 1; i < n; i++) {
+      const t = i - 0.5;
+      presTl.to(steps[i - 1], { autoAlpha: 0, y: -24, duration: 0.9, ease: 'power2.in' }, t);
+      presTl.to(shots[i - 1], { autoAlpha: 0, scale: 0.93, duration: 0.9, ease: 'power2.in' }, t);
+      presTl.fromTo(steps[i], { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: 1, ease: 'power3.out' }, t + 0.1);
+      presTl.fromTo(shots[i], { autoAlpha: 0, scale: 1.07 }, { autoAlpha: 1, scale: 1, duration: 1, ease: 'power3.out' }, t + 0.1);
+    }
+
+    /* arrows/dots: smooth-scroll to the step's scroll position */
+    const presSt = presTl.scrollTrigger;
+    function jumpTo(i) {
+      const dist = presSt.end - presSt.start;
+      const y = presSt.start + (i + 0.5) * (dist / n);
+      if (lenis) lenis.scrollTo(y, { duration: 1.2 });
+      else gsap.to(window, { scrollTo: { y: y, autoKill: false }, duration: 1.1, ease: 'power3.inOut' });
+    }
+    document.getElementById('gNext').addEventListener('click', () => {
+      const idx = Math.min(n - 1, Math.floor(presSt.progress * n));
+      jumpTo(Math.min(n - 1, idx + 1));
+    });
+    document.getElementById('gPrev').addEventListener('click', () => {
+      const idx = Math.min(n - 1, Math.floor(presSt.progress * n));
+      jumpTo(Math.max(0, idx - 1));
+    });
+    grabDots.forEach(d => d.addEventListener('click', () => jumpTo(+d.dataset.i)));
+
+    /* re-measure once everything (images/fonts) has loaded */
+    window.addEventListener('load', () => ScrollTrigger.refresh());
+    document.querySelectorAll('img').forEach(im => im.addEventListener('load', () => ScrollTrigger.refresh()));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ScrollTrigger.refresh());
+  } else {
+    /* no GSAP: static first step */
+    const s0 = document.querySelector('.gstep');
+    if (s0) { s0.style.opacity = 1; s0.style.visibility = 'visible'; }
+    const sh0 = document.querySelector('.shot');
+    if (sh0) { sh0.style.opacity = 1; sh0.style.visibility = 'visible'; }
+  }
+</script>
+</body>
+</html>
+
+
